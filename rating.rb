@@ -26,8 +26,10 @@ $List = Array.new
 #ウィンドウのサイズ
 root = TkRoot.new{
   title '採点ツール'
-  geometry '950x600'
+  geometry '930x600'
 }
+
+
 
 #ボタンを整えてるフレーム
 f1 = TkFrame.new(root){
@@ -35,6 +37,8 @@ f1 = TkFrame.new(root){
   padx 10
   pack 'side'=>'left','fill'=>'y'
 }
+
+
 
 #コンパイル、実行結果を表示するフレーム
 f2 = TkFrame.new(root){
@@ -74,8 +78,8 @@ L4 = TkLabel.new(root){
 
 L1.place('x' => 275, 'y' => 15)
 L2.place('x' => 275, 'y' => 32)
-L3.place('x' => 365, 'y' => 62)
-L4.place('x' => 690, 'y' => 62)
+L3.place('x' => 355, 'y' => 52)
+L4.place('x' => 710, 'y' => 52)
 
 #f2のスクロールバー
 scr = TkScrollbar.new(f2){
@@ -88,7 +92,7 @@ text = TkText.new(f2){
   borderwidth 1
   yscrollbar(scr)
   state 'disabled'
-  pack("side" => "left")
+  pack("fill"=>"y","side" => "left")
 }
 
 #f3のスクロールバー
@@ -102,7 +106,7 @@ text2 = TkText.new(f3){
   borderwidth 1
   yscrollbar(scr2)
   state 'disabled'
-  pack("side" => "right")
+  pack("fill"=>'y',"side" => "right")
 }
 
 #Student $Listと表示するラベル
@@ -159,16 +163,7 @@ b2 = TkButton.new(f1){
     end
     $li.focus
 
-$scroll = TkScrollbar.new(root) do
-  orient 'vertical'
-  place('height' => 240, 'x' => 214, 'y' => 40)
-end
 
-    $li.yscrollcommand(proc{ |first,last|
-                         $scroll.set(first,last)
-                       })
-
-    # $scroll.command(proc{|idx| $li.yview(*idx)})
 
   }
   #  pack 'fill' => 'both'
@@ -183,6 +178,21 @@ b1 = TkButton.new(f1){
       L2.text = "ディレクトリ　　: " + $dd
       b2.invoke
     end
+
+    # $scroll = TkScrollbar.new(root){
+    #   pack('fill'=>'y' , 'side'=>'right')
+    # }
+
+    $scroll = TkScrollbar.new(root) do
+      orient 'vertical'
+      place('height' => 216, 'x' => 214, 'y' => 35)
+    end
+    
+    $li.yscrollcommand(proc {|*args|
+                         $scroll.set(*args)
+                       })
+    
+    $scroll.command(proc{|*idx| $li.yview(*idx)})
   }
   pack 'fill' => 'both'
 }
@@ -444,23 +454,12 @@ def foo
   end
 end
 
-def adjust
-
-
-
-  size = $List.length
-  tmp = 1.0 * $NowPointer[0] / size
-  $li.yscrollcommand(proc {|first,last|
-                       $scroll.set(first,last)
-                     })
-end
-
 Tk.root.bind('m',proc{b.focus;  b.invoke})
 Tk.root.bind('d',proc{b1.focus; b1.invoke})
 #Tk.root.bind('r',proc{b2.focus; b2.invoke})
 #Tk.root.bind('c',proc{b3.focus; b3.invoke})
 Tk.root.bind('q',proc{b4.focus; b4.invoke})
-Tk.root.bind('Return',proc{b5.focus;  b5.invoke; adjust})
+Tk.root.bind('Return',proc{b5.focus;  b5.invoke})
 Tk.root.bind('Up', proc{display; b3.invoke})
 Tk.root.bind('Down', proc{display; b3.invoke})
 Tk.root.bind('slash',proc{$e2.focus})
