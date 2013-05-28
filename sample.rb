@@ -1,34 +1,10 @@
-require "tk"
+require 'tk'
 
-$names = %w{ yellow gray green
-              blue red black white cyan
-              pink yellow orange gray}
-$colornames = TkVariable.new($names)
+f = TkFrame.new.pack
+lx = TkLabel.new(f, 'relief'=>'ridge', 'width'=>6).pack('side'=>'left')
+ly = TkLabel.new(f, 'relief'=>'ridge', 'width'=>6).pack('side'=>'left')
 
-root = TkRoot.new
-root.title = "Window"
-
-list = TkListbox.new(root) do
-  listvariable $colornames
-  pack('fill' => 'x')
-end
-
-list.place('height' => 150,
-           'width'  => 100,
-           'x'      => 10,
-           'y'      => 10)
-
-scroll = TkScrollbar.new(root) do
-    orient 'vertical'
-    place('height' => 150, 'x' => 110)
-end
-
-list.yscrollcommand(proc { |*args|
-  scroll.set(*args)
-})
-
-scroll.command(proc { |*args|
-  list.yview(*args)
-}) 
+c = TkCanvas.new.pack
+c.bind('B1-Motion', proc{|x, y| lx.text( x.to_s ); ly.text( y.to_s )}, "%x %y")
 
 Tk.mainloop

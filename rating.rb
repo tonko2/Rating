@@ -13,6 +13,8 @@ $dd = ""
 #ListBoxの指すポインタ
 $Pointer
 
+$keep_flag = 0
+
 #ListBoxの今のポインタ
 $NowPointer = Array.new
 $NowPointer.push(0)
@@ -163,6 +165,10 @@ b2 = TkButton.new(f1){
     end
     $li.focus
 
+    if $li.size != 0 then
+      $Pointer = 0
+      $keep_flag = 1
+    end
 
 
   }
@@ -177,22 +183,14 @@ b1 = TkButton.new(f1){
     if $dd != "" then 
       L2.text = "ディレクトリ　　: " + $dd
       b2.invoke
+
     end
 
     # $scroll = TkScrollbar.new(root){
     #   pack('fill'=>'y' , 'side'=>'right')
     # }
 
-    $scroll = TkScrollbar.new(root) do
-      orient 'vertical'
-      place('height' => 216, 'x' => 214, 'y' => 35)
-    end
-    
-    $li.yscrollcommand(proc {|*args|
-                         $scroll.set(*args)
-                       })
-    
-    $scroll.command(proc{|*idx| $li.yview(*idx)})
+  
   }
   pack 'fill' => 'both'
 }
@@ -263,7 +261,7 @@ def Update(file,name,point)
       
       for j in 0..$number.length-1
         if $number[j] == tmp then 
-          $li.insert('end',"#{tmp}       #{$grade[j]}") 
+          # $li.insert('end',"#{tmp}       #{$grade[j]}") 
           f.write(tmp+" "+$grade[j]+"\n")
           break
         end 
@@ -344,21 +342,25 @@ b4 = TkButton.new(f1){
 b5 = TkButton.new(f1){
   text "決定"
   command proc{
-    if $li.curselection.length == 0 then break end
+    keep
 
     $Pointer = $li.curselection
     $number.clear
     $grade.clear
-    $li.clear
+    # $li.clear
 
     a = L2.text.split(" ");
     a1 = a[1]
     if a1 != "Null" then
       a2 = a1 + "/"+$FName
       Update(a2,$e1.value,$e2.value)
-      $li.selection_set($Pointer)
-      $li.focus
-      $li.activate($Pointer)
+
+      tmp = $li.get($Pointer)
+      $li.delete($Pointer)
+      $li.insert($Pointer,$e1.value+"       "+$e2.value)
+      
+      keep
+
     end
   }
   pack
@@ -373,7 +375,8 @@ $e1 = TkEntry.new(f1){
 }
 
 $e2 = TkEntry.new(f1){
-  # bind 'FocusIn', proc {selection_range(0, 'end') }
+  bind 'FocusIn', proc {selection_range(0, 'end')}
+
   pack
 }
 
@@ -444,6 +447,12 @@ def display
     $e1.value = file
     $e2.value = point
     $NowPointer = $li.curselection
+     if $keep_flag == 1
+       $Pointer = $li.curselection
+       $li.selection_set($Pointer)
+       $li.focus
+       $li.activate($Pointer)
+     end
   end
 end
 
@@ -454,16 +463,35 @@ def foo
   end
 end
 
-Tk.root.bind('m',proc{b.focus;  b.invoke})
-Tk.root.bind('d',proc{b1.focus; b1.invoke})
+  $scroll = TkScrollbar.new(root) do
+      orient 'vertical'
+      place('height' => 216, 'x' => 214, 'y' => 35)
+    end
+    
+    $li.yscrollcommand(proc {|*args|
+                         $scroll.set(*args)
+                       })
+    
+    $scroll.command(proc{|*args| $li.yview(*args)})
+
+def keep
+  if $keep_flag == 1
+    $li.selection_set($Pointer)
+    $li.focus
+    $li.activate($Pointer)
+  end
+end
+
+Tk.root.bind('m',proc{b.invoke})
+Tk.root.bind('d',proc{b1.invoke})
 #Tk.root.bind('r',proc{b2.focus; b2.invoke})
 #Tk.root.bind('c',proc{b3.focus; b3.invoke})
-Tk.root.bind('q',proc{b4.focus; b4.invoke})
-Tk.root.bind('Return',proc{b5.focus;  b5.invoke})
+Tk.root.bind('q',proc{b4.invoke})
+Tk.root.bind('Return',proc{b5.invoke})
 Tk.root.bind('Up', proc{display; b3.invoke})
 Tk.root.bind('Down', proc{display; b3.invoke})
 Tk.root.bind('slash',proc{$e2.focus})
 $li.bind('ButtonRelease',proc{display;b3.invoke})
+# Tk.root.bind('ButtonRelease',proc{keep})
 Tk.root.bind('Double-ButtonPress-1' , proc{foo})
-
 Tk.mainloop
